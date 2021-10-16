@@ -19,6 +19,7 @@ aiohttp 2.3.2+
 
 Features
 --------
+- Fixed original library to use in 2021 onwards
 - SOCKS4, SOCKS4a and SOCKS5 version
 - ProxyConnector for aiohttp
 - SOCKS "CONNECT" command

@@ -2,7 +2,7 @@ try:
     import aiohttp
     from aiohttp.client_exceptions import cert_errors, ssl_errors
 except ImportError:  # pragma: no cover
-    raise ImportError('aiosocks.SocksConnector require aiohttp library')
+    raise ImportError('aiosocks2.SocksConnector require aiohttp library')
 
 from .errors import SocksConnectionError
 from .helpers import Socks4Auth, Socks5Auth, Socks4Addr, Socks5Addr

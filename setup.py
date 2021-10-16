@@ -11,7 +11,7 @@ except ImportError:
 
 
 with codecs.open(os.path.join(os.path.abspath(os.path.dirname(
-        __file__)), 'aiosocks', '__init__.py'), 'r', 'latin1') as fp:
+        __file__)), 'aiosocks2', '__init__.py'), 'r', 'latin1') as fp:
     try:
         version = re.findall(r"^__version__ = '([^']+)'\r?$",
                              fp.read(), re.M)[0]
@@ -20,16 +20,16 @@ with codecs.open(os.path.join(os.path.abspath(os.path.dirname(
 
 
 if sys.version_info < (3, 5, 3):
-    raise RuntimeError("aiosocks requires Python 3.5.3+")
+    raise RuntimeError("aiosocks2 requires Python 3.5.3+")
 
 
 setup(
-        name='aiosocks',
-        author='Nail Ibragimov',
-        author_email='ibragwork@gmail.com',
+        name='aiosocks2',
+        author='UltrafunkAmsterdam',
+        author_email='info@blackhatsecurity.nl',
         version=version,
         license='Apache 2',
-        url='https://github.com/nibrag/aiosocks',
+        url='https://github.com/ultrafunkamsterdam/aiosocks2',
 
         description='SOCKS proxy client for asyncio and aiohttp',
         long_description=open("README.rst").read(),
@@ -41,7 +41,7 @@ setup(
             "Programming Language :: Python :: 3.7",
             "Programming Language :: Python :: 3.8",
         ),
-        packages=['aiosocks'],
+        packages=['aiosocks2'],
         install_requires=[
             'aiohttp>=3.4',
         ]

@@ -1,21 +1,21 @@
 import asyncio
 import ssl
 
-import aiosocks
+import aiosocks2
 import aiohttp
 import pytest
 from yarl import URL
 from unittest import mock
 from aiohttp.test_utils import make_mocked_coro
 from aiohttp import BasicAuth, ClientTimeout
-from aiosocks.connector import ProxyConnector, ProxyClientRequest
-from aiosocks.helpers import Socks4Auth, Socks5Auth
+from aiosocks2.connector import ProxyConnector, ProxyClientRequest
+from aiosocks2.helpers import Socks4Auth, Socks5Auth
 
 
 async def test_connect_proxy_ip(loop):
     tr, proto = mock.Mock(name='transport'), mock.Mock(name='protocol')
 
-    with mock.patch('aiosocks.connector.create_connection',
+    with mock.patch('aiosocks2.connector.create_connection',
                     make_mocked_coro((tr, proto))):
         loop.getaddrinfo = make_mocked_coro(
              [[0, 0, 0, 0, ['127.0.0.1', 1080]]])
@@ -35,7 +35,7 @@ async def test_connect_proxy_ip(loop):
 async def test_connect_proxy_domain():
     tr, proto = mock.Mock(name='transport'), mock.Mock(name='protocol')
 
-    with mock.patch('aiosocks.connector.create_connection',
+    with mock.patch('aiosocks2.connector.create_connection',
                     make_mocked_coro((tr, proto))):
         loop_mock = mock.Mock()
 
@@ -56,7 +56,7 @@ async def test_connect_proxy_domain():
 async def test_connect_remote_resolve(loop):
     tr, proto = mock.Mock(name='transport'), mock.Mock(name='protocol')
 
-    with mock.patch('aiosocks.connector.create_connection',
+    with mock.patch('aiosocks2.connector.create_connection',
                     make_mocked_coro((tr, proto))):
         req = ProxyClientRequest(
             'GET', URL('http://python.org'), loop=loop,
@@ -74,7 +74,7 @@ async def test_connect_remote_resolve(loop):
 async def test_connect_locale_resolve(loop):
     tr, proto = mock.Mock(name='transport'), mock.Mock(name='protocol')
 
-    with mock.patch('aiosocks.connector.create_connection',
+    with mock.patch('aiosocks2.connector.create_connection',
                     make_mocked_coro((tr, proto))):
         req = ProxyClientRequest(
             'GET', URL('http://python.org'), loop=loop,
@@ -93,7 +93,7 @@ async def test_connect_locale_resolve(loop):
 async def test_resolve_host_fail(loop, remote_resolve):
     tr, proto = mock.Mock(name='transport'), mock.Mock(name='protocol')
 
-    with mock.patch('aiosocks.connector.create_connection',
+    with mock.patch('aiosocks2.connector.create_connection',
                     make_mocked_coro((tr, proto))):
         req = ProxyClientRequest(
             'GET', URL('http://python.org'), loop=loop,
@@ -108,7 +108,7 @@ async def test_resolve_host_fail(loop, remote_resolve):
 @pytest.mark.parametrize('exc', [
     (ssl.CertificateError, aiohttp.ClientConnectorCertificateError),
     (ssl.SSLError, aiohttp.ClientConnectorSSLError),
-    (aiosocks.SocksConnectionError, aiohttp.ClientProxyConnectionError)])
+    (aiosocks2.SocksConnectionError, aiohttp.ClientProxyConnectionError)])
 async def test_proxy_connect_fail(loop, exc):
     loop_mock = mock.Mock()
     loop_mock.getaddrinfo = make_mocked_coro(
@@ -116,7 +116,7 @@ async def test_proxy_connect_fail(loop, exc):
     cc_coro = make_mocked_coro(
         raise_exception=exc[0]())
 
-    with mock.patch('aiosocks.connector.create_connection', cc_coro):
+    with mock.patch('aiosocks2.connector.create_connection', cc_coro):
         req = ProxyClientRequest(
             'GET', URL('http://python.org'), loop=loop,
             proxy=URL('socks5://127.0.0.1'))
@@ -131,14 +131,14 @@ async def test_proxy_negotiate_fail(loop):
     loop_mock.getaddrinfo = make_mocked_coro(
         [[0, 0, 0, 0, ['127.0.0.1', 1080]]])
 
-    with mock.patch('aiosocks.connector.create_connection',
-                    make_mocked_coro(raise_exception=aiosocks.SocksError())):
+    with mock.patch('aiosocks2.connector.create_connection',
+                    make_mocked_coro(raise_exception=aiosocks2.SocksError())):
         req = ProxyClientRequest(
             'GET', URL('http://python.org'), loop=loop,
             proxy=URL('socks5://127.0.0.1'))
         connector = ProxyConnector(loop=loop_mock)
 
-        with pytest.raises(aiosocks.SocksError):
+        with pytest.raises(aiosocks2.SocksError):
             await connector.connect(req, [], ClientTimeout())
 
 

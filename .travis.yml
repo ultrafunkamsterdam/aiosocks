@@ -32,8 +32,8 @@ install:
 
 script:
   - cd $TRAVIS_BUILD_DIR
-  - flake8 aiosocks tests
-  - python setup.py develop && py.test --cov=aiosocks tests
+  - flake8 aiosocks2 tests
+  - python setup.py develop && py.test --cov=aiosocks2 tests
   - python setup.py check -rm
   - if python -c "import sys; sys.exit(sys.version_info < (3,5))"; then
         python setup.py check -s;

@@ -1,13 +1,13 @@
 import asyncio
-import aiosocks
+import aiosocks22
 import pytest
 import socket
 import ssl as ssllib
 from unittest import mock
 from asyncio import coroutine as coro, sslproto
 from aiohttp.test_utils import make_mocked_coro
-import aiosocks.constants as c
-from aiosocks.protocols import BaseSocksProtocol
+import aiosocks22.constants as c
+from aiosocks22.protocols import BaseSocksProtocol
 
 
 def make_base(loop, *, dst=None, waiter=None, ap_factory=None, ssl=None):
@@ -21,11 +21,11 @@ def make_base(loop, *, dst=None, waiter=None, ap_factory=None, ssl=None):
 
 def make_socks4(loop, *, addr=None, auth=None, rr=True, dst=None, r=b'',
                 ap_factory=None, whiter=None):
-    addr = addr or aiosocks.Socks4Addr('localhost', 1080)
-    auth = auth or aiosocks.Socks4Auth('user')
+    addr = addr or aiosocks22.Socks4Addr('localhost', 1080)
+    auth = auth or aiosocks22.Socks4Auth('user')
     dst = dst or ('python.org', 80)
 
-    proto = aiosocks.Socks4Protocol(
+    proto = aiosocks22.Socks4Protocol(
         proxy=addr, proxy_auth=auth, dst=dst, remote_resolve=rr,
         loop=loop, app_protocol_factory=ap_factory, waiter=whiter)
     proto._stream_writer = mock.Mock()
@@ -39,11 +39,11 @@ def make_socks4(loop, *, addr=None, auth=None, rr=True, dst=None, r=b'',
 
 def make_socks5(loop, *, addr=None, auth=None, rr=True, dst=None, r=None,
                 ap_factory=None, whiter=None):
-    addr = addr or aiosocks.Socks5Addr('localhost', 1080)
-    auth = auth or aiosocks.Socks5Auth('user', 'pwd')
+    addr = addr or aiosocks22.Socks5Addr('localhost', 1080)
+    auth = auth or aiosocks22.Socks5Auth('user', 'pwd')
     dst = dst or ('python.org', 80)
 
-    proto = aiosocks.Socks5Protocol(
+    proto = aiosocks22.Socks5Protocol(
         proxy=addr, proxy_auth=auth, dst=dst, remote_resolve=rr,
         loop=loop, app_protocol_factory=ap_factory, waiter=whiter)
     proto._stream_writer = mock.Mock()
@@ -102,10 +102,10 @@ async def test_base_negotiate_socks_err(loop):
     waiter = asyncio.Future(loop=loop)
     proto = make_base(loop, waiter=waiter)
     proto.socks_request = make_mocked_coro(
-        raise_exception=aiosocks.SocksError('test'))
+        raise_exception=aiosocks22.SocksError('test'))
     await proto.negotiate(None, None)
 
-    with pytest.raises(aiosocks.SocksError) as ct:
+    with pytest.raises(aiosocks22.SocksError) as ct:
         await waiter
     assert 'Can not connect to' in str(ct.value)
 
@@ -283,7 +283,7 @@ async def test_base_func_negotiate_cb_call():
     proto.socks_request = make_mocked_coro((None, None))
     proto._negotiate_done_cb = mock.Mock()
 
-    with mock.patch('aiosocks.protocols.asyncio.Task') as task_mock:
+    with mock.patch('aiosocks22.protocols.asyncio.Task') as task_mock:
         await proto.negotiate(None, None)
         assert proto._negotiate_done_cb.called
         assert not task_mock.called
@@ -316,36 +316,36 @@ async def test_base_incomplete_error(loop):
                               None, None, reader_limit=10, loop=loop)
     proto._stream_reader.readexactly = make_mocked_coro(
         raise_exception=asyncio.IncompleteReadError(b'part', 5))
-    with pytest.raises(aiosocks.InvalidServerReply):
+    with pytest.raises(aiosocks22.InvalidServerReply):
         await proto.read_response(4)
 
 
 def test_socks4_ctor(loop):
-    addr = aiosocks.Socks4Addr('localhost', 1080)
-    auth = aiosocks.Socks4Auth('user')
+    addr = aiosocks22.Socks4Addr('localhost', 1080)
+    auth = aiosocks22.Socks4Auth('user')
     dst = ('python.org', 80)
 
     with pytest.raises(ValueError):
-        aiosocks.Socks4Protocol(None, None, dst, loop=loop,
+        aiosocks22.Socks4Protocol(None, None, dst, loop=loop,
                                 waiter=None, app_protocol_factory=None)
 
     with pytest.raises(ValueError):
-        aiosocks.Socks4Protocol(None, auth, dst, loop=loop,
+        aiosocks22.Socks4Protocol(None, auth, dst, loop=loop,
                                 waiter=None, app_protocol_factory=None)
 
     with pytest.raises(ValueError):
-        aiosocks.Socks4Protocol(aiosocks.Socks5Addr('host'), auth, dst,
+        aiosocks22.Socks4Protocol(aiosocks22.Socks5Addr('host'), auth, dst,
                                 loop=loop, waiter=None,
                                 app_protocol_factory=None)
 
     with pytest.raises(ValueError):
-        aiosocks.Socks4Protocol(addr, aiosocks.Socks5Auth('l', 'p'), dst,
+        aiosocks22.Socks4Protocol(addr, aiosocks22.Socks5Auth('l', 'p'), dst,
                                 loop=loop, waiter=None,
                                 app_protocol_factory=None)
 
-    aiosocks.Socks4Protocol(addr, None, dst, loop=loop,
+    aiosocks22.Socks4Protocol(addr, None, dst, loop=loop,
                             waiter=None, app_protocol_factory=None)
-    aiosocks.Socks4Protocol(addr, auth, dst, loop=loop,
+    aiosocks22.Socks4Protocol(addr, auth, dst, loop=loop,
                             waiter=None, app_protocol_factory=None)
 
 
@@ -386,7 +386,7 @@ async def test_socks4_dst_ip_with_locale_resolve(loop):
 
 
 async def test_socks4_dst_domain_without_user(loop):
-    proto = make_socks4(loop, auth=aiosocks.Socks4Auth(''),
+    proto = make_socks4(loop, auth=aiosocks22.Socks4Auth(''),
                         dst=('python.org', 80),
                         r=b'\x00\x5a\x00P\x7f\x00\x00\x01')
 
@@ -396,7 +396,7 @@ async def test_socks4_dst_domain_without_user(loop):
 
 
 async def test_socks4_dst_ip_without_user(loop):
-    proto = make_socks4(loop, auth=aiosocks.Socks4Auth(''),
+    proto = make_socks4(loop, auth=aiosocks22.Socks4Auth(''),
                         dst=('127.0.0.1', 8800),
                         r=b'\x00\x5a\x00P\x7f\x00\x00\x01')
 
@@ -415,14 +415,14 @@ async def test_socks4_valid_resp_handling(loop):
 async def test_socks4_invalid_reply_resp_handling(loop):
     proto = make_socks4(loop, r=b'\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF')
 
-    with pytest.raises(aiosocks.InvalidServerReply):
+    with pytest.raises(aiosocks22.InvalidServerReply):
         await proto.socks_request(c.SOCKS_CMD_CONNECT)
 
 
 async def test_socks_err_resp_handling(loop):
     proto = make_socks4(loop, r=b'\x00\x5b\x00P\x7f\x00\x00\x01')
 
-    with pytest.raises(aiosocks.SocksError) as cm:
+    with pytest.raises(aiosocks22.SocksError) as cm:
         await proto.socks_request(c.SOCKS_CMD_CONNECT)
     assert '0x5b' in str(cm.value)
 
@@ -430,58 +430,58 @@ async def test_socks_err_resp_handling(loop):
 async def test_socks4_unknown_err_resp_handling(loop):
     proto = make_socks4(loop, r=b'\x00\x5e\x00P\x7f\x00\x00\x01')
 
-    with pytest.raises(aiosocks.SocksError) as cm:
+    with pytest.raises(aiosocks22.SocksError) as cm:
         await proto.socks_request(c.SOCKS_CMD_CONNECT)
     assert 'Unknown error' in str(cm.value)
 
 
 def test_socks5_ctor(loop):
-    addr = aiosocks.Socks5Addr('localhost', 1080)
-    auth = aiosocks.Socks5Auth('user', 'pwd')
+    addr = aiosocks22.Socks5Addr('localhost', 1080)
+    auth = aiosocks22.Socks5Auth('user', 'pwd')
     dst = ('python.org', 80)
 
     with pytest.raises(ValueError):
-        aiosocks.Socks5Protocol(None, None, dst, loop=loop,
+        aiosocks22.Socks5Protocol(None, None, dst, loop=loop,
                                 waiter=None, app_protocol_factory=None)
 
     with pytest.raises(ValueError):
-        aiosocks.Socks5Protocol(None, auth, dst, loop=loop,
+        aiosocks22.Socks5Protocol(None, auth, dst, loop=loop,
                                 waiter=None, app_protocol_factory=None)
 
     with pytest.raises(ValueError):
-        aiosocks.Socks5Protocol(aiosocks.Socks4Addr('host'),
+        aiosocks22.Socks5Protocol(aiosocks22.Socks4Addr('host'),
                                 auth, dst, loop=loop,
                                 waiter=None, app_protocol_factory=None)
 
     with pytest.raises(ValueError):
-        aiosocks.Socks5Protocol(addr, aiosocks.Socks4Auth('l'),
+        aiosocks22.Socks5Protocol(addr, aiosocks22.Socks4Auth('l'),
                                 dst, loop=loop,
                                 waiter=None, app_protocol_factory=None)
 
-    aiosocks.Socks5Protocol(addr, None, dst, loop=loop,
+    aiosocks22.Socks5Protocol(addr, None, dst, loop=loop,
                             waiter=None, app_protocol_factory=None)
-    aiosocks.Socks5Protocol(addr, auth, dst, loop=loop,
+    aiosocks22.Socks5Protocol(addr, auth, dst, loop=loop,
                             waiter=None, app_protocol_factory=None)
 
 
 async def test_socks5_auth_inv_srv_ver(loop):
     proto = make_socks5(loop, r=b'\x00\x00')
 
-    with pytest.raises(aiosocks.InvalidServerVersion):
+    with pytest.raises(aiosocks22.InvalidServerVersion):
         await proto.authenticate()
 
 
 async def test_socks5_auth_no_acceptable_auth_methods(loop):
     proto = make_socks5(loop, r=b'\x05\xFF')
 
-    with pytest.raises(aiosocks.NoAcceptableAuthMethods):
+    with pytest.raises(aiosocks22.NoAcceptableAuthMethods):
         await proto.authenticate()
 
 
 async def test_socks5_auth_unsupported_auth_method(loop):
     proto = make_socks5(loop, r=b'\x05\xF0')
 
-    with pytest.raises(aiosocks.InvalidServerReply):
+    with pytest.raises(aiosocks22.InvalidServerReply):
         await proto.authenticate()
 
 
@@ -498,14 +498,14 @@ async def test_socks5_auth_usr_pwd_granted(loop):
 async def test_socks5_auth_invalid_reply(loop):
     proto = make_socks5(loop, r=(b'\x05\x02', b'\x00\x00',))
 
-    with pytest.raises(aiosocks.InvalidServerReply):
+    with pytest.raises(aiosocks22.InvalidServerReply):
         await proto.authenticate()
 
 
 async def test_socks5_auth_access_denied(loop):
     proto = make_socks5(loop, r=(b'\x05\x02', b'\x01\x01',))
 
-    with pytest.raises(aiosocks.LoginAuthenticationFailed):
+    with pytest.raises(aiosocks22.LoginAuthenticationFailed):
         await proto.authenticate()
 
 
@@ -577,14 +577,14 @@ async def test_socks5_rd_addr_domain(loop):
 async def test_socks5_socks_req_inv_ver(loop):
     proto = make_socks5(loop, r=[b'\x05\x00', b'\x04\x00\x00'])
 
-    with pytest.raises(aiosocks.InvalidServerVersion):
+    with pytest.raises(aiosocks22.InvalidServerVersion):
         await proto.socks_request(c.SOCKS_CMD_CONNECT)
 
 
 async def test_socks5_socks_req_socks_srv_err(loop):
     proto = make_socks5(loop, r=[b'\x05\x00', b'\x05\x02\x00'])
 
-    with pytest.raises(aiosocks.SocksError) as ct:
+    with pytest.raises(aiosocks22.SocksError) as ct:
         await proto.socks_request(c.SOCKS_CMD_CONNECT)
     assert 'Connection not allowed by ruleset' in str(ct.value)
 
@@ -592,7 +592,7 @@ async def test_socks5_socks_req_socks_srv_err(loop):
 async def test_socks5_socks_req_unknown_err(loop):
     proto = make_socks5(loop, r=[b'\x05\x00', b'\x05\xFF\x00'])
 
-    with pytest.raises(aiosocks.SocksError) as ct:
+    with pytest.raises(aiosocks22.SocksError) as ct:
         await proto.socks_request(c.SOCKS_CMD_CONNECT)
     assert 'Unknown error' in str(ct.value)
 

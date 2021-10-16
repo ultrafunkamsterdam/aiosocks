@@ -1,15 +1,15 @@
 SOCKS proxy client for asyncio and aiohttp
 ==========================================
-.. image:: https://travis-ci.org/nibrag/aiosocks.svg?branch=master
-  :target: https://travis-ci.org/nibrag/aiosocks
+.. image:: https://travis-ci.org/ultrafunkamsterdam/aiosocks2.svg?branch=master
+  :target: https://travis-ci.org/ultrafunkamsterdam/aiosocks2
   :align: right
 
-.. image:: https://coveralls.io/repos/github/nibrag/aiosocks/badge.svg?branch=master
-  :target: https://coveralls.io/github/nibrag/aiosocks?branch=master
+.. image:: https://coveralls.io/repos/github/ultrafunkamsterdam/aiosocks2/badge.svg?branch=master
+  :target: https://coveralls.io/github/ultrafunkamsterdam/aiosocks2?branch=master
   :align: right
 
-.. image:: https://badge.fury.io/py/aiosocks.svg
-  :target: https://badge.fury.io/py/aiosocks
+.. image:: https://badge.fury.io/py/aiosocks2.svg
+  :target: https://badge.fury.io/py/aiosocks2
 
 
 Dependencies
@@ -35,14 +35,14 @@ You can install it using Pip:
 
 .. code-block::
 
-  pip install aiosocks
+  pip install aiosocks2
 
 If you want the latest development version, you can install it from source:
 
 .. code-block::
 
-  git clone git@github.com:nibrag/aiosocks.git
-  cd aiosocks
+  git clone git@github.com:ultrafunkamsterdam/aiosocks2.git
+  cd aiosocks2
   python setup.py install
 
 Usage
@@ -53,32 +53,32 @@ direct usage
 .. code-block:: python
 
   import asyncio
-  import aiosocks
+  import aiosocks2
 
 
   async def connect():
-    socks5_addr = aiosocks.Socks5Addr('127.0.0.1', 1080)
-    socks4_addr = aiosocks.Socks4Addr('127.0.0.1', 1080)
+    socks5_addr = aiosocks2.Socks5Addr('127.0.0.1', 1080)
+    socks4_addr = aiosocks2.Socks4Addr('127.0.0.1', 1080)
     
-    socks5_auth = aiosocks.Socks5Auth('login', 'pwd')
-    socks4_auth = aiosocks.Socks4Auth('ident')
+    socks5_auth = aiosocks2.Socks5Auth('login', 'pwd')
+    socks4_auth = aiosocks2.Socks4Auth('ident')
   
     dst = ('github.com', 80)
     
     # socks5 connect
-    transport, protocol = await aiosocks.create_connection(
+    transport, protocol = await aiosocks2.create_connection(
         lambda: Protocol, proxy=socks5_addr, proxy_auth=socks5_auth, dst=dst)
     
     # socks4 connect
-    transport, protocol = await aiosocks.create_connection(
+    transport, protocol = await aiosocks2.create_connection(
         lambda: Protocol, proxy=socks4_addr, proxy_auth=socks4_auth, dst=dst)
         
     # socks4 without auth and local domain name resolving
-    transport, protocol = await aiosocks.create_connection(
+    transport, protocol = await aiosocks2.create_connection(
         lambda: Protocol, proxy=socks4_addr, proxy_auth=None, dst=dst, remote_resolve=False)
 
     # use socks protocol
-    transport, protocol = await aiosocks.create_connection(
+    transport, protocol = await aiosocks2.create_connection(
         None, proxy=socks4_addr, proxy_auth=None, dst=dst)
   
   if __name__ == '__main__':
@@ -92,7 +92,7 @@ direct usage
 .. code-block:: python
 
     # StreamReader, StreamWriter
-    reader, writer = await aiosocks.open_connection(
+    reader, writer = await aiosocks2.open_connection(
         proxy=socks5_addr, proxy_auth=socks5_auth, dst=dst, remote_resolve=True)
 
     data = await reader.read(10)
@@ -110,17 +110,17 @@ error handling
 .. code-block:: python
 
     try:
-      transport, protocol = await aiosocks.create_connection(
+      transport, protocol = await aiosocks2.create_connection(
           lambda: Protocol, proxy=socks5_addr, proxy_auth=socks5_auth, dst=dst)
-    except aiosocks.SocksConnectionError:
+    except aiosocks2.SocksConnectionError:
       # connection error
-    except aiosocks.LoginAuthenticationFailed:
+    except aiosocks2.LoginAuthenticationFailed:
       # auth failed
-    except aiosocks.NoAcceptableAuthMethods:
+    except aiosocks2.NoAcceptableAuthMethods:
       # All offered SOCKS5 authentication methods were rejected
-    except (aiosocks.InvalidServerVersion, aiosocks.InvalidServerReply):
+    except (aiosocks2.InvalidServerVersion, aiosocks2.InvalidServerReply):
       # something wrong
-    except aiosocks.SocksError:
+    except aiosocks2.SocksError:
       # something other
 
 or
@@ -128,11 +128,11 @@ or
 .. code-block:: python
 
     try:
-      transport, protocol = await aiosocks.create_connection(
+      transport, protocol = await aiosocks2.create_connection(
           lambda: Protocol, proxy=socks5_addr, proxy_auth=socks5_auth, dst=dst)
-    except aiosocks.SocksConnectionError:
+    except aiosocks2.SocksConnectionError:
         # connection error
-    except aiosocks.SocksError:
+    except aiosocks2.SocksError:
         # socks error
 
 aiohttp usage
@@ -142,13 +142,13 @@ aiohttp usage
 
   import asyncio
   import aiohttp
-  import aiosocks
-  from aiosocks.connector import ProxyConnector, ProxyClientRequest
+  import aiosocks2
+  from aiosocks2.connector import ProxyConnector, ProxyClientRequest
 
 
   async def load_github_main():
-    auth5 = aiosocks.Socks5Auth('proxyuser1', password='pwd')
-    auth4 = aiosocks.Socks4Auth('proxyuser1')
+    auth5 = aiosocks2.Socks5Auth('proxyuser1', password='pwd')
+    auth4 = aiosocks2.Socks4Auth('proxyuser1')
     ba = aiohttp.BasicAuth('login')
 
     # remote resolve
@@ -180,7 +180,7 @@ aiohttp usage
       # connection problem
     except aiohttp.ClientConnectorError:
       # ssl error, certificate error, etc
-    except aiosocks.SocksError:
+    except aiosocks2.SocksError:
       # communication problem
 
 

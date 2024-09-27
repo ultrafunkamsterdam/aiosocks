@@ -105,7 +105,7 @@ class ProxyConnector(aiohttp.TCPConnector):
                     loop=self._loop, remote_resolve=self._remote_resolve,
                     ssl=sslcontext, family=hinfo['family'],
                     proto=hinfo['proto'], flags=hinfo['flags'],
-                    local_addr=self._local_addr, req=req,
+                    local_addr=self._local_addr_infos, req=req,
                     server_hostname=req.host if sslcontext else None)
             except aiohttp.ClientConnectorError as exc:
                 last_exc = exc
